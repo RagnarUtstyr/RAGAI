@@ -1,1 +1,286 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meme AI Roast Generator</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #09090b;
+        color: #f4f4f5;
+      }
+
+      main {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+      }
+
+      .page {
+        width: 100%;
+        max-width: 980px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid #27272a;
+        background: #18181b;
+        color: #a1a1aa;
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-size: 14px;
+        margin-bottom: 18px;
+      }
+
+      h1 {
+        font-size: clamp(40px, 7vw, 72px);
+        line-height: 0.95;
+        margin: 0 0 18px;
+        letter-spacing: -0.06em;
+      }
+
+      .intro {
+        color: #a1a1aa;
+        font-size: 18px;
+        line-height: 1.7;
+        max-width: 720px;
+        margin: 0 0 32px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      .card {
+        border: 1px solid #27272a;
+        background: rgba(24, 24, 27, 0.75);
+        border-radius: 24px;
+        padding: 22px;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+      }
+
+      label,
+      .output-title {
+        display: block;
+        color: #d4d4d8;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 12px;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 220px;
+        resize: vertical;
+        border: 1px solid #27272a;
+        background: #09090b;
+        color: #f4f4f5;
+        border-radius: 18px;
+        padding: 16px;
+        font: inherit;
+        font-size: 16px;
+        line-height: 1.6;
+        outline: none;
+      }
+
+      textarea:focus {
+        border-color: #71717a;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      button {
+        border: 0;
+        border-radius: 16px;
+        padding: 13px 18px;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      #generateBtn {
+        background: #f4f4f5;
+        color: #09090b;
+      }
+
+      #resetBtn,
+      #copyBtn {
+        background: transparent;
+        color: #d4d4d8;
+        border: 1px solid #27272a;
+      }
+
+      button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      .hint {
+        color: #71717a;
+        font-size: 13px;
+        margin-top: 12px;
+      }
+
+      .output-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      #output {
+        min-height: 326px;
+        border: 1px solid #27272a;
+        background: #09090b;
+        border-radius: 18px;
+        padding: 16px;
+        color: #d4d4d8;
+        line-height: 1.7;
+        white-space: pre-wrap;
+      }
+
+      .loading {
+        color: #a1a1aa;
+      }
+
+      @media (max-width: 800px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <section class="page">
+        <div class="badge">✦ Fake AI simulator</div>
+
+        <h1>Meme AI Roast Generator</h1>
+
+        <p class="intro">
+          Type a prompt and generate a fake AI-style response. The answer is assembled by randomly choosing one phrase from each of the four phrase pools.
+        </p>
+
+        <div class="grid">
+          <section class="card">
+            <label for="promptInput">Prompt input</label>
+            <textarea id="promptInput" placeholder="Ask the fake AI something..."></textarea>
+
+            <div class="actions">
+              <button id="generateBtn">Generate answer</button>
+              <button id="resetBtn">Reset</button>
+            </div>
+
+            <p class="hint">Press Ctrl/⌘ + Enter to generate.</p>
+          </section>
+
+          <section class="card">
+            <div class="output-header">
+              <div class="output-title">AI output</div>
+              <button id="copyBtn" disabled>Copy</button>
+            </div>
+
+            <div id="output">Generated answer will appear here.</div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script type="module">
+      import {
+        openers,
+        escalations,
+        aiStyleChaosInserts,
+        finishers,
+        randomItem,
+      } from "./meme-ai-roast-pools.js";
+
+      const promptInput = document.querySelector("#promptInput");
+      const generateBtn = document.querySelector("#generateBtn");
+      const resetBtn = document.querySelector("#resetBtn");
+      const copyBtn = document.querySelector("#copyBtn");
+      const output = document.querySelector("#output");
+
+      function generateFakeAnswer(prompt) {
+        if (!prompt.trim()) {
+          return "Enter a prompt first. Even fake intelligence needs something to pretend to process.";
+        }
+
+        const opener = randomItem(openers);
+        const escalation = randomItem(escalations);
+        const chaos = randomItem(aiStyleChaosInserts);
+        const finisher = randomItem(finishers);
+
+        return `${opener}\n\n${escalation}\n\n${chaos}\n\n${finisher}`;
+      }
+
+      function setLoading(isLoading) {
+        generateBtn.disabled = isLoading;
+        generateBtn.textContent = isLoading ? "Generating..." : "Generate answer";
+        output.classList.toggle("loading", isLoading);
+      }
+
+      function handleGenerate() {
+        const prompt = promptInput.value.trim();
+
+        if (!prompt) {
+          output.textContent = "Enter a prompt first.";
+          copyBtn.disabled = true;
+          return;
+        }
+
+        setLoading(true);
+        output.textContent = "Analyzing prompt...";
+        copyBtn.disabled = true;
+
+        setTimeout(() => {
+          const answer = generateFakeAnswer(prompt);
+          output.textContent = answer;
+          copyBtn.disabled = false;
+          setLoading(false);
+        }, 850);
+      }
+
+      generateBtn.addEventListener("click", handleGenerate);
+
+      promptInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+          handleGenerate();
+        }
+      });
+
+      resetBtn.addEventListener("click", () => {
+        promptInput.value = "";
+        output.textContent = "Generated answer will appear here.";
+        copyBtn.disabled = true;
+      });
+
+      copyBtn.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(output.textContent);
+        copyBtn.textContent = "Copied";
+        setTimeout(() => {
+          copyBtn.textContent = "Copy";
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>
 
