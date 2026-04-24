@@ -252,12 +252,22 @@
       let isGenerating = false;
       let messages = [];
 
-      function randomDelay(min = 700, max = 1900) {
+      function randomDelay(min = 1600, max = 4200) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
       }
 
       function wait(ms) {
         return new Promise((resolve) => setTimeout(resolve, ms));
+      }
+
+      async function typeText(message, text) {
+        const characters = text.split("");
+
+        for (const character of characters) {
+          message.content += character;
+          renderMessages();
+          await wait(Math.floor(Math.random() * 28) + 12);
+        }
       }
 
       function scrollToBottom() {
@@ -322,8 +332,11 @@
           await wait(randomDelay());
           thinkingBubble.remove();
 
-          aiMessage.content += aiMessage.content ? `\n\n${part}` : part;
-          renderMessages();
+          if (aiMessage.content) {
+            await typeText(aiMessage, "\n\n");
+          }
+
+          await typeText(aiMessage, part);
         }
       }
 
