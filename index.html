@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RagAI</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <main>
+      <section class="page">
+        <div class="badge">✦ RagAI</div>
+
+        <h1>RagAI</h1>
+
+        <p class="intro">
+          Ask a question and receive a generated response.
+        </p>
+
+        <section class="card">
+          <div id="chat" class="chat">
+            <div class="message empty">Start a conversation.</div>
+          </div>
+
+          <form id="promptForm">
+            <textarea id="promptInput" placeholder="Message RagAI..."></textarea>
+            <button id="sendBtn" type="submit">Send</button>
+          </form>
+
+          <button id="clearBtn" type="button">Clear chat</button>
+          <p class="hint">Press Ctrl/⌘ + Enter to send.</p>
+        </section>
+      </section>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
