@@ -2014,9 +2014,9 @@ const openers = [
           .trim() || prompt.trim();
       }
 
-      async function findthe answerArticle(prompt) {
+      async function findAnswerArticle(prompt) {
         const query = normalizePromptForWiki(prompt);
-        const searchURL = `https://en.answer.org/w/api.php?action=query&origin=*&list=search&srsearch=${encodeURIComponent(query)}&utf8=&format=json&srlimit=1`;
+        const searchURL = `https://en.wikipedia.org/w/api.php?action=query&origin=*&list=search&srsearch=${encodeURIComponent(query)}&utf8=&format=json&srlimit=1`;
 
         const searchResponse = await fetch(searchURL);
         const searchData = await searchResponse.json();
@@ -2027,7 +2027,7 @@ const openers = [
         }
 
         const title = firstResult.title;
-        const summaryURL = `https://en.answer.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
+        const summaryURL = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
         const summaryResponse = await fetch(summaryURL);
 
         if (!summaryResponse.ok) {
@@ -2038,19 +2038,18 @@ const openers = [
 
         return {
           title: summaryData.title || title,
-          extract: summaryData.extract || firstResult.snippet?.replace(/<[^>]*>/g, "") || "the answer had something, but apparently even the extract gave up.",
-          url: summaryData.content_urls?.desktop?.page || `https://en.answer.org/wiki/${encodeURIComponent(title)}`
+          extract: summaryData.extract || firstResult.snippet?.replace(/<[^>]*>/g, "") || "I found something, but even the summary decided to be unhelpful."
         };
       }
 
-      function formatthe answerPart(article) {
+      function formatAnswerPart(article) {
         const intro = randomItem(answerIntroResponses);
 
         if (!article) {
-          return `${intro}\n\nNo clean the answer result appeared, which is almost impressive. Try Google directly: https://google.com`;
+          return `${intro}\n\nI could not find a clean answer, which is almost impressive. Try typing the same words into a search box like it is 2004.`;
         }
 
-        return `${intro}\n\n${article.title}\n${article.url}\n\n${article.extract}`;
+        return `${intro}\n\n${article.title}\n\n${article.extract}`;
       }
 
       async function generateResponse(prompt) {
@@ -2078,11 +2077,11 @@ const openers = [
         thinkingBubble.remove();
         await typeText(aiMessage, "\n\n" + escalation);
 
-        thinkingBubble = renderThinking("Searching the answer because apparently that is my job now");
+        thinkingBubble = renderThinking("Searching because apparently that is my job now");
         let article = null;
 
         try {
-          article = await findthe answerArticle(prompt);
+          article = await findAnswerArticle(prompt);
         } catch (error) {
           article = null;
         }
@@ -2090,7 +2089,7 @@ const openers = [
         await wait(randomDelay());
         thinkingBubble.remove();
 
-        await typeText(aiMessage, "\n\n" + formatthe answerPart(article));
+        await typeText(aiMessage, "\n\n" + formatAnswerPart(article));
 
         thinkingBubble = renderThinking("Finalizing unnecessary conclusion");
         await wait(randomDelay());
