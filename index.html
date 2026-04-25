@@ -215,7 +215,7 @@
         <h1>RagAI</h1>
 
         <p class="intro">
-          Ask a question and receive a generated response.
+          Ask a question and receive a roast-wrapped Wikipedia answer.
         </p>
 
         <section class="card">
@@ -238,10 +238,10 @@
       import {
         openers,
         escalations,
-        aiStyleChaosInserts,
         finishers,
         randomItem,
       } from "./meme-ai-roast-pools.js";
+      import { searchWikipedia } from "./wiki-search.js";
 
       const chat = document.querySelector("#chat");
       const form = document.querySelector("#promptForm");
@@ -312,32 +312,41 @@
         return bubble;
       }
 
-      function pickAnswerParts() {
-        return [
-          randomItem(openers),
-          randomItem(escalations),
-          randomItem(aiStyleChaosInserts),
-          randomItem(finishers),
-        ];
+      function formatWikipediaPart(article) {
+        return `Wikipedia has already done the part where facts are collected, so here is the actual answer from "${article.title}":\n\n${article.extract}\n\nSource: ${article.url}`;
+      }
+
+      async function typePart(aiMessage, part) {
+        const thinkingBubble = renderThinking();
+        await wait(randomDelay());
+        thinkingBubble.remove();
+
+        if (aiMessage.content) {
+          await typeText(aiMessage, "\n\n");
+        }
+
+        await typeText(aiMessage, part);
       }
 
       async function generateResponse(prompt) {
-        const parts = pickAnswerParts();
         const aiMessage = { role: "ai", content: "" };
         messages.push(aiMessage);
         renderMessages();
 
-        for (const part of parts) {
-          const thinkingBubble = renderThinking();
-          await wait(randomDelay());
-          thinkingBubble.remove();
+        await typePart(aiMessage, randomItem(openers));
+        await typePart(aiMessage, randomItem(escalations));
 
-          if (aiMessage.content) {
-            await typeText(aiMessage, "\n\n");
-          }
-
-          await typeText(aiMessage, part);
+        try {
+          const article = await searchWikipedia(prompt);
+          await typePart(aiMessage, formatWikipediaPart(article));
+        } catch (error) {
+          await typePart(
+            aiMessage,
+            "Wikipedia was contacted, but the request failed. This is usually a network, CORS, or rate-limit problem. The roast pipeline remains tragically operational."
+          );
         }
+
+        await typePart(aiMessage, randomItem(finishers));
       }
 
       async function handleSend() {
